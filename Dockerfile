@@ -33,7 +33,7 @@ RUN mkdir -p /root/.garminconnect && \
     chmod 700 /root/.garminconnect
 
 # Expose the application
-EXPOSE 8000
+EXPOSE 8080
 
 # Set the entrypoint to run the MCP server
 ENTRYPOINT ["garmin-mcp"]
