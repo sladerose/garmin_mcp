@@ -339,7 +339,8 @@ def main():
         )
 
     # Run the MCP server
-    app.run()
+    port = int(os.getenv("PORT", "8000"))
+    app.run(transport="streamable-http", host="0.0.0.0", port=port)
 
 
 if __name__ == "__main__":
