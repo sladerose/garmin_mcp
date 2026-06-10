@@ -153,6 +153,20 @@ class _ToolFilter:
 def init_api(email, password):
     """Initialize Garmin API with your credentials."""
     import io
+    import tarfile
+
+    # If tokens passed as base64 tar.gz via env var, extract to tokenstore directory
+    tokens_b64 = os.getenv("GARMINTOKENS_BASE64")
+    if tokens_b64:
+        expanded = os.path.expanduser(tokenstore)
+        os.makedirs(expanded, exist_ok=True)
+        try:
+            tar_bytes = base64.b64decode(tokens_b64)
+            with tarfile.open(fileobj=io.BytesIO(tar_bytes), mode="r:gz") as tar:
+                tar.extractall(path=expanded)
+            print(f"Extracted tokens from GARMINTOKENS_BASE64 to {expanded}", file=sys.stderr)
+        except Exception as e:
+            print(f"Failed to extract GARMINTOKENS_BASE64: {e}", file=sys.stderr)
 
     try:
         # Using Oauth1 and OAuth2 token files from directory
@@ -160,14 +174,6 @@ def init_api(email, password):
             f"Trying to login to Garmin Connect using token data from directory '{tokenstore}'...\n",
             file=sys.stderr,
         )
-
-        # Using Oauth1 and Oauth2 tokens from base64 encoded string
-        # print(
-        #     f"Trying to login to Garmin Connect using token data from file '{tokenstore_base64}'...\n"
-        # )
-        # dir_path = os.path.expanduser(tokenstore_base64)
-        # with open(dir_path, "r") as token_file:
-        #     tokenstore = token_file.read()
 
         # Suppress stderr for token validation to avoid confusing library errors
         old_stderr = sys.stderr
